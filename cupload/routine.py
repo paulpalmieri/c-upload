@@ -3,6 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
+from os.path import realpath
+from os.path import dirname
 import time
 import json
 
@@ -16,11 +18,11 @@ def upload(args):
     chrome_driver_executable = "driver/chromedriver"
 
     # set real path
-    cd_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    print("Driver should be located at " + cd_path + "/" + chrome_driver_executable)
+    cd_path = dirname(dirname(realpath(__file__)))
+    print("Driver should be located at " + cd_path + '/' + chrome_driver_executable)
 
-    project_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    print("Print queue should be located at: " + project_path + "/" + upload_queue)
+    project_path = dirname(dirname(realpath(__file__)))
+    print("Print queue should be located at: " + project_path + '/' + upload_queue)
 
     # get driver
     driver = webdriver.Chrome(executable_path=cd_path + '/' + chrome_driver_executable)
@@ -29,13 +31,15 @@ def upload(args):
 
         # login into DPrint
         print("Attempting to login...")
-        login(driver)
-        print("Login successful!")
+        if len(args) > 0:
+            login(driver, args[0])
+        else:
+            login(driver, "bw")
 
         # list files
         file_list = os.listdir(os.path.expanduser(project_path + '/' + upload_queue))
 
-        print("*** Uploading all files in the upload queue")
+        print("----- Uploading all files in the upload queue -----")
         for files in file_list:
             upload_file(files, driver, project_path, upload_queue)
 
@@ -45,27 +49,29 @@ def upload(args):
         driver.quit()
 
     driver.quit()
-    print("-- All uploads have been completed, it took %s seconds --" % (time.time() - start_time))
+    print("----- All uploads have been completed, it took %.1f seconds -----" % (time.time() - start_time))
 
 
-# upload a single file
+# uploads a single file
 def upload_file(file_name, driver, project_path, upload_queue):
 
     start_time = time.time()
 
     if file_name[0] == '.':
-        print('Ignoring file: ' + str(file_name))
+        print('-- Ignoring file: ' + file_name)
         return
 
-    print("- Uploading file: " + file_name)
+    print("-- Uploading file: " + file_name)
 
+    # sends file through HTML input
     inputFile = driver.find_element_by_xpath('/html/body/div/form/div[3]/table/tbody/tr[1]/td[2]/input')
     inputFile.send_keys(project_path + '/' + upload_queue + '/' + file_name)
 
+    # default options
     driver.find_element_by_xpath('/html/body/div/form/div[8]/div/input').click()
     driver.find_element_by_xpath('/html/body/div/form/div[8]/div[1]/input').click()
 
-    #switch to dynamic upload frame
+    # switch to dynamic upload frame
     driver.switch_to.frame(driver.find_element_by_xpath('/html/body/div/div[3]/iframe'))
 
     # wait for the first part of the upload
@@ -79,17 +85,19 @@ def upload_file(file_name, driver, project_path, upload_queue):
         EC.presence_of_element_located((By.XPATH, '/html/body/div/div[1]/table/tbody/tr/td[1]/div'))
     )
 
-    #switch back to default frame to click "another job"
+    # switch back to default frame to click "another job"
     driver.switch_to.default_content()
     driver.find_element_by_xpath('/html/body/div/div[4]/table/tbody/tr[1]/td[1]/p/a').click()
 
-    print("* Upload successful, took %.1f seconds --" % (time.time() - start_time))
+    print("-- Upload successful, it took %.1f seconds" % (time.time() - start_time))
 
 
-def login(driver):
+# logs into DPrint
+def login(driver, printer_type):
+
     # parse credentials
-    real_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    with open(real_path + '/credentials.json') as f:
+    project_path = dirname(dirname(realpath(__file__)))
+    with open(project_path + '/credentials.json') as f:
         credentials = json.load(f)
 
     # navigate the site and login
@@ -102,6 +110,14 @@ def login(driver):
 
     driver.find_element_by_xpath('//*[@id="regularLogin"]/input[2]').click()
 
-    # next line selects black and white
-    driver.find_element_by_xpath('//*[@id="tablelisting"]/div/table/tbody/tr[1]/td[1]/div/a').click()
+    if printer_type == 'bw':
+        # black and white
+        driver.find_element_by_xpath('//*[@id="tablelisting"]/div/table/tbody/tr[1]/td[1]/div/a').click()
+    elif printer_type == 'color':
+        # color
+        driver.find_element_by_xpath('//*[@id="tablelisting"]/div/table/tbody/tr[2]/td[1]/div/a').click()
+
+    print('Successfully logged in: ' + printer_type.upper() + " printer")
+    print()
+
 
