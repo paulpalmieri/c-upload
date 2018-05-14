@@ -1,6 +1,5 @@
-from cupload.routine import upload
 import sys
-
+from routine import upload
 
 def main():
     print("Uploading your documents...")

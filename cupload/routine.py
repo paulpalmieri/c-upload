@@ -13,10 +13,10 @@ def upload(args):
 
     # set relative paths
     upload_queue = "upload_queue"
-    chrome_driver_executable = "chromedriver"
+    chrome_driver_executable = "driver/chromedriver"
 
     # set real path
-    cd_path = os.path.dirname(os.path.realpath(__file__))
+    cd_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     print("Driver should be located at " + cd_path + "/" + chrome_driver_executable)
 
     project_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -101,7 +101,7 @@ def login(driver):
         credentials["password"])
 
     driver.find_element_by_xpath('//*[@id="regularLogin"]/input[2]').click()
-    
+
     # next line selects black and white
     driver.find_element_by_xpath('//*[@id="tablelisting"]/div/table/tbody/tr[1]/td[1]/div/a').click()
 
