@@ -5,7 +5,7 @@ Uses `Selenium` to automate Chrome dynamically.
 ## Requirements
 * Python 3 (use `brew install python` if you don't have python3)
 * Pip and Setuptools (they should come bundled with python3)
-* Chrome Browser
+* Chrome Browser and Selenium Chrome Driver
 
 ## Installation
 1. Clone the repository and move the folder where you'd like
