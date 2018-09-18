@@ -1,6 +1,7 @@
 # c-upload
-Automates and speeds up the upload of documents on the public printer service of Concordia University.  
-Uses `Selenium` to automate Chrome dynamically.
+Automates and speeds up the upload of documents on the public printer service of Concordia University. 
+Run a single command and do something else while all the documents get uploaded.
+Uses `Selenium` to automate Chrome dynamically. 
 
 ## Requirements
 * Python 3 (use `brew install python` if you don't have python3)
@@ -10,8 +11,8 @@ Uses `Selenium` to automate Chrome dynamically.
 ## Installation
 1. Clone the repository and move the folder where you'd like
 2. Put your information in the `credentials.json` file
-3. Open a terminal and navigate to the folder
-4. Run `pip install -e cupload`
+3. Open a terminal and navigate to the cloned folder
+4. Run `pip install -e cupload` 
 
 ## Running instructions
 You can chose which printer you want to use by running:
