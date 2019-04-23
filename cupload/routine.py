@@ -8,6 +8,7 @@ from os.path import dirname
 import time
 import json
 
+paths_list = {}
 
 # login and upload every file
 def upload(args):
@@ -27,6 +28,11 @@ def upload(args):
     # get driver
     driver = webdriver.Chrome(executable_path=cd_path + '/' + chrome_driver_executable)
 
+    # load xpath for navigating
+    project_path = dirname(dirname(realpath(__file__)))
+    with open(project_path + '/paths.json') as f:
+        paths_list = json.load(f)
+
     try:
 
         # login into DPrint
@@ -39,7 +45,7 @@ def upload(args):
         # list files
         file_list = os.listdir(os.path.expanduser(project_path + '/' + upload_queue))
 
-        print("----- Uploading all files in the upload queue -----")
+        print("Uploading all files in the upload queue")
         for files in file_list:
             upload_file(files, driver, project_path, upload_queue)
 
@@ -49,7 +55,7 @@ def upload(args):
         driver.quit()
 
     driver.quit()
-    print("----- All uploads have been completed, it took %.1f seconds -----" % (time.time() - start_time))
+    print("--- All uploads have been completed in %.1f seconds ---" % (time.time() - start_time))
 
 
 # uploads a single file
@@ -58,13 +64,13 @@ def upload_file(file_name, driver, project_path, upload_queue):
     start_time = time.time()
 
     if file_name[0] == '.':
-        print('-- Ignoring file: ' + file_name)
+        print('Ignoring file: ' + file_name)
         return
 
-    print("-- Uploading file: " + file_name)
+    print("Uploading file: " + file_name)
 
     # sends file through HTML input
-    inputFile = driver.find_element_by_xpath('/html/body/div/form/div[3]/table/tbody/tr[1]/td[2]/input')
+    inputFile = driver.find_element_by_xpath(paths_list["file_input_box"])
     inputFile.send_keys(project_path + '/' + upload_queue + '/' + file_name)
 
     # default options
